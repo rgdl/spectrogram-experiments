@@ -17,16 +17,28 @@ BIT_DEPTH = 24
 FREQ = 440
 
 
+def saw_wave(t: Union[int, float]) -> float:
+    return (t % (2 * math.pi)) / math.pi - 1
+
+
 def make_waveform(
-    name: str,
     frequency: Union[int, float],
     func: Callable,
 ) -> None:
     time_steps = torch.linspace(0, AUDIO_SECS, SAMPLE_RATE * AUDIO_SECS)
-    wave = func(2 * math.pi * frequency * time_steps).view(1, -1)
-    save(OUTPUT_PATH / name, wave, SAMPLE_RATE, bits_per_sample=BIT_DEPTH)
+    return func(2 * math.pi * frequency * time_steps).view(1, -1)
 
 
 if __name__ == "__main__":
-    make_waveform("sine.wav", 440, torch.sin)
-    make_waveform("saw.wav", 440, lambda t: (t % (2 * math.pi)) / math.pi - 1)
+    save(
+        OUTPUT_PATH / "sine.wav",
+        make_waveform(FREQ, torch.sin),
+        SAMPLE_RATE,
+        bits_per_sample=BIT_DEPTH,
+    )
+    save(
+        OUTPUT_PATH / "saw.wav",
+        make_waveform(FREQ, saw_wave),
+        SAMPLE_RATE,
+        bits_per_sample=BIT_DEPTH,
+    )
